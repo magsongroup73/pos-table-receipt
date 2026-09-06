@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="custom_pos_receipt.ReceiptHeader"
+       t-inherit="point_of_sale.ReceiptHeader"
+       t-inherit-mode="extension">
+
+        <xpath expr="//div[contains(@class, 'text-center') and contains(@class, 'pt-3')]" position="replace">
+
+            <!-- YOUR NEW CONTENT -->
+            <div class="text-center pt-3">
+                <div t-if="props.order.company.name"
+                     t-out="order.company_id.name"
+                     style="font-weight: bold; font-size: 20px; margin-top: 0;"/>
+                <div t-if="order.company_id.street">
+                <t t-esc="order.company_id.street"/>
+            </div>
+                <div t-if="order.company_id.phone">
+                 Tel:<t t-esc="order.company_id.phone"/>
+            </div>
+                <div t-if="order.company_id.website">
+                 <t t-esc="order.company_id.website"/>
+            </div>
+            </div>
+            <br/>
+            <div class="text-left">
+                 <div t-if="order.company_id.vat">
+                 VAT: <t t-esc="order.company_id.vat"/>
+            </div>
+                <div>
+                    Order: <t t-out="order.name"/>
+                </div>
+                <div t-if="order.date_order">
+                    Date: <t t-out="order.formatDateOrTime('date_order')"/>
+                </div>
+            </div>
+
+        </xpath>
+
+         <xpath expr="//div[contains(@class, 'pos-receipt-contact')]" position="replace">
+             <div></div>
+         </xpath>
+
+
+    </t>
+</templates>
