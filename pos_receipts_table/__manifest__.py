@@ -2,6 +2,7 @@
     'name': 'POS VAT  Receipt',
     'version': '19.0.1.1',
     'category': 'Point of Sale',
+    'author': 'Hidext',
     'summary': ' POS receipt with VAT Invoice heading and VAT No',
     'description': """
     This module customizes the Point of Sale receipt:
