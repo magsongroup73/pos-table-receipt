@@ -1,5 +1,5 @@
 {
-    'name': 'POS VAT  Receipt',
+    'name': 'POS TABLE  Receipt',
     'version': '19.0.1.1',
     'category': 'Point of Sale',
     'author': 'Hidext',
