@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <!-- Inheriting POS Receipt -->
+    <t t-name="custom_pos_receipt.ReceiptHeader"
+       t-inherit="point_of_sale.OrderReceipt"
+       t-inherit-mode="extension">
+
+
+        <xpath expr="//div[hasclass('pos-receipt')]" position="replace">
+
+
+             <div class="pos-receipt p-2">
+            <t t-set="showTaxGroupLabels" t-value="doesAnyOrderlineHaveTaxLabel()"/>
+                 <ReceiptHeader order="order"/>
+                 <div class="pt-3"/>
+
+                 <table style="width:100%; font-size:12px; border-collapse:collapse;">
+
+    <thead>
+        <tr>
+            <th style="text-align:left; border-bottom:1px dotted #000;">#</th>
+            <th style="text-align:left; border-bottom:1px dotted #000;">Item</th>
+            <th style="text-align:center; border-bottom:1px dotted #000;">Qty</th>
+            <th style="text-align:center; border-bottom:1px dotted #000;">Price</th>
+            <th style="text-align:center; border-bottom:1px dotted #000;">Disc</th>
+            <th style="text-align:right; border-bottom:1px dotted #000;">Total</th>
+        </tr>
+    </thead>
+
+
+                    <tbody>
+    <t t-set="i" t-value="1"/>
+      <t t-set="totalQty" t-value="0"/>
+     <t t-set="totalItems" t-value="0"/>
+        <t t-foreach="props.order.lines" t-as="line" t-key="line.id or line.cid">
+
+            <tr>
+
+                <td style="border-bottom:1px dotted #000;">
+                    <t t-esc="i"/>
+                </td>
+
+                <td style="border-bottom:1px dotted #000;">
+                    <t t-esc="line.product_id.name"/>
+                </td>
+
+                <td class="text-center" style="border-bottom:1px dotted #000;">
+                    <t t-esc="line.qty"/>
+                </td>
+
+                <td class="text-center" style="border-bottom:1px dotted #000;">
+                    <t t-esc="line.price_unit"/>
+                </td>
+
+                <td class="text-center" style="border-bottom:1px dotted #000;">
+                    <t t-if="line.discount > 0">
+                        <t t-esc="line.discount"/>%
+                    </t>
+                    <t t-else="">-</t>
+                </td>
+
+                <td class="text-end" style="border-bottom:1px dotted #000;">
+                    <t t-esc="line.price_subtotal_incl"/>
+                </td>
+
+            </tr>
+
+            <t t-set="i" t-value="i + 1"/>
+    <t t-set="totalQty" t-value="totalQty + line.qty"/>
+    <t t-set="totalItems" t-value="totalItems + 1"/>
+
+</t>
+</tbody>
+</table>
+<div style="margin-top:6px; font-size:12px;">
+    Items = <t t-esc="totalItems"/><br/>
+    Qty = <t t-esc="totalQty"/>
+</div>
+                 <t t-if="!props.basic_receipt">
+                <t t-set="taxTotals" t-value="order.prices.taxDetails"/>
+                     <div t-if="taxTotals and taxTotals.has_tax_groups" class="pos-receipt-taxes pt-3">
+                    <t t-foreach="taxTotals.subtotals" t-as="subtotal" t-key="subtotal.name">
+                        <div class="d-flex">
+                            <span class="text-nowrap mw-100">Subtotal</span>
+                            <span t-out="formatCurrency(order.priceExcl)" class="ms-auto font-monospace"/>
+                        </div>
+
+                        <div t-foreach="subtotal.tax_groups" t-as="tax_group" t-key="tax_group.id" class="d-flex">
+                            <span>
+                                <span t-esc="tax_group.group_name"/>
+                                <t t-if="showTaxGroupLabels">
+                                    (<span t-if="tax_group.group_label" t-out="tax_group.group_label"/>)
+                                </t>
+                                <t id="tax_base" t-if="!taxTotals.same_tax_base">
+                                    on
+                                    <span t-esc="formatCurrency(tax_group.base_amount_currency)"/>
+                                </t>
+                            </span>
+                            <span t-out="formatCurrency(tax_group.tax_amount_currency)" class="ms-auto font-monospace"/>
+                        </div>
+                    </t>
+                </div>
+                     <!-- Total -->
+                     <div class="pos-receipt-amount receipt-total fw-bolder">
+                    <span class="label-total">Total</span>
+                         <span t-out="order.currencyDisplayPriceIncl" class="pos-receipt-right-align font-monospace"/>
+                </div>
+                     <t t-if="order.appliedRounding">
+                    <div class="pos-receipt-amount receipt-rounding">
+                        <span class="label-rounding">Rounding</span>
+                        <span t-out='formatCurrency(order.appliedRounding)'
+                              class="pos-receipt-right-align font-monospace"/>
+                    </div>
+                         <div class="pos-receipt-amount receipt-to-pay">
+                        To Pay
+                        <span t-out='formatCurrency(order.totalDue)' class="pos-receipt-right-align font-monospace"/>
+                    </div>
+                </t>
+
+                     <!-- Payment Lines -->
+                     <div class="paymentlines text-start pt-1" t-foreach="paymentLines" t-as="line" t-key="line_index">
+                    <t t-esc="line.payment_method_id.name"/>
+                         <span t-out="formatCurrency(line.getAmount())" class="pos-receipt-right-align font-monospace"/>
+                </div>
+
+                     <div t-if="order.showChange" class="pos-receipt-amount receipt-change">
+                    <span class="label-change">Change</span>
+                         <span t-out="formatCurrency(order.change)" class="pos-receipt-right-align font-monospace"/>
+                </div>
+
+                     <!-- Extra Payment Info -->
+                     <t t-set="totalDiscount" t-value="order.getTotalDiscount()"/>
+                     <t t-if="totalDiscount">
+                    <div class="text-start">
+                        <span class="label-discount">Discounts</span>
+                        <span t-out="formatCurrency(totalDiscount)" class="pos-receipt-right-align font-monospace"/>
+                    </div>
+                </t>
+
+
+                     <div class="before-footer"/>
+                     <div class="pos-receipt-order-data custom-order-info text-center">
+                            <p>Thank You!!!</p>
+
+                        
+
+                        </div>
+            </t>
+
+        </div>
+
+        </xpath>
+
+    </t>
+</templates>
+
