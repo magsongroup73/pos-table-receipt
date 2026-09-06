@@ -18,7 +18,7 @@
             'pos_receipts/static/src/xml/pos_receipt_address.xml',
         ],
     },
-    'images': ['static/description/banner.png'],
+    'images': ['static/description/banner.png'imgq.jpg'],
     "price": 10,
     "currency": "EUR",
     'installable': True,
